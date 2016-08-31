@@ -1,6 +1,6 @@
 /*!
  *
- * Synced Storage v1.0.0
+ * Synced Storage v1.0.1
  *
  * https://github.com/kasimi/JS-Synced-Storage
  * Copyright 2016 kasimi
@@ -36,13 +36,27 @@ var syncedStorage = function(options) {
 		}
 	};
 
+	var getStorage = function(type) {
+		try {
+			var storage = window[type];
+			var x = '__storage_test__';
+			storage.setItem(x, x);
+			storage.removeItem(x);
+			return storage;
+		}
+		catch(e) {
+			return false;
+		}
+	};
+
 	mergeFlatDefensive(options, {
-		storage			: localStorage,
+		storage			: 'localStorage',
 		storageKey		: 'syncedStorage',
 		sessionLength	: false,
 		cachedDataTTL	: options.updateInterval
 	});
 
+	var storage = getStorage(options.storage) || false;
 	var sessionLength = options.sessionLength;
 	var lastStorageEventTime = 0;
 
@@ -51,11 +65,11 @@ var syncedStorage = function(options) {
 			time: new Date().getTime(),
 			data: data
 		});
-		options.storage.setItem(options.storageKey, storageContent);
+		storage && storage.setItem(options.storageKey, storageContent);
 	};
 
 	var readFromStorage = function() {
-		var storageContent = options.storage.getItem(options.storageKey);
+		var storageContent = storage.getItem(options.storageKey);
 		return JSON.parse(storageContent).data;
 	};
 

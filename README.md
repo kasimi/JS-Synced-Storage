@@ -21,7 +21,7 @@ Available options to pass to the `syncedStorage()` function:
 | `processData` | Yes | `function` | Callback function that processes new data. It receives the data as its first argument. |
 | `updateInterval` | Yes | `int` | Number of milliseconds after which the data should be updated. |
 | `sessionLength` | No, default: `false` | `int|bool` | Number of milliseconds after which to stop updating the data. If `false` is passed, updates will never stop. |
-| `storage` | No, default: `localStorage` | `object` | The storage object to use. |
+| `storage` | No, default: `'localStorage'` | `string` | The name of storage object to use. |
 | `storageKey` | No, default: `'syncedStorage'` | `string` | String with which to associate the data in the storage. |
 
 ## Example
@@ -43,8 +43,11 @@ syncedStorage({
 
 ## Changelog
 
+* v1.0.1
+  * Transparent fallback to regular, isolated requests if Web Storage is not available
+
 * v1.0.0
-  * initial release
+  * Initial release
 
 ## Copyright and license
 
