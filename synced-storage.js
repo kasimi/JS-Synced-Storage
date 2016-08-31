@@ -36,47 +36,79 @@ var syncedStorage = function(options) {
 		}
 	};
 
-	var getStorage = function(type) {
+	function StorageWrapper(storage, prefix, eventKeys) {
+		this.prefix = prefix;
+		this.storage = this.getStorage(storage) || false;
+
+		// Register event listener
+		if (Object.keys(eventKeys || {}).length > 0) {
+			window.addEventListener('storage', function(e) {
+				var key = e.key.substr(prefix.length);
+				if (eventKeys.hasOwnProperty(key)) {
+					eventKeys[key](e);
+				}
+			});
+		}
+	}
+
+	StorageWrapper.prototype.getStorage = function(type) {
 		try {
 			var storage = window[type];
-			var x = '__storage_test__';
+			var x = this.prefix;
 			storage.setItem(x, x);
 			storage.removeItem(x);
 			return storage;
-		}
-		catch(e) {
+		} catch (e) {
 			return false;
 		}
 	};
 
+	StorageWrapper.prototype.set = function(key, value) {
+		this.storage && this.storage.setItem(this.prefix + key, value);
+	};
+
+	StorageWrapper.prototype.get = function(key) {
+		return this.storage && this.storage.getItem(this.prefix + key);
+	};
+
 	mergeFlatDefensive(options, {
-		storage			: 'localStorage',
-		storageKey		: 'syncedStorage',
-		sessionLength	: false,
-		cachedDataTTL	: options.updateInterval
+		storage				: 'localStorage',
+		storageKeyPrefix	: 'synced_storage_',
+		sessionLength		: false,
+		cachedDataTTL		: options.updateInterval
 	});
 
-	var storage = getStorage(options.storage) || false;
-	var sessionLength = options.sessionLength;
 	var lastStorageEventTime = 0;
+	var sessionLength = options.sessionLength;
+	var storage = new StorageWrapper(options.storage, options.storageKeyPrefix, {
+		time: function(e) {
+			lastStorageEventTime = e.newValue;
+		},
+		content: function() {
+			options.processData(readFromStorage());
+		}
+	});
 
 	var writeToStorage = function(data) {
 		var storageContent = JSON.stringify({
-			time: new Date().getTime(),
+			// We add a "unique" value here to make sure this object is different from the one
+			// in the last call to writeToStorage() to ensure the 'storage' event is triggered.
+			time: Date.now(),
 			data: data
 		});
-		storage && storage.setItem(options.storageKey, storageContent);
+		storage.set('content', storageContent);
 	};
 
 	var readFromStorage = function() {
-		var storageContent = storage.getItem(options.storageKey);
+		var storageContent = storage.get('content');
 		return JSON.parse(storageContent).data;
 	};
 
 	var updateData = function(done) {
-		if (lastStorageEventTime > new Date().getTime() - options.updateInterval) {
+		if (lastStorageEventTime > Date.now() - options.updateInterval) {
 			done();
 		} else {
+			storage.set('time', Date.now());
 			options.getData(function(data) {
 				writeToStorage(data);
 				options.processData(data);
@@ -94,13 +126,6 @@ var syncedStorage = function(options) {
 			});
 		}, options.updateInterval);
 	};
-
-	window.addEventListener('storage', function(e) {
-		if (e.key == options.storageKey) {
-			lastStorageEventTime = new Date().getTime();
-			options.processData(readFromStorage());
-		}
-	});
 
 	scheduleUpdate();
 };

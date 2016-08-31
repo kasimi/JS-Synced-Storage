@@ -11,7 +11,7 @@ Frequently checking for new data by sending requests to a server is a common thi
 
 The `syncedStorage()` function solves these issues.
 
-## Documentation
+## Options
 
 Available options to pass to the `syncedStorage()` function:
 
@@ -22,7 +22,7 @@ Available options to pass to the `syncedStorage()` function:
 | `updateInterval` | Yes | `int` | Number of milliseconds after which the data should be updated. |
 | `sessionLength` | No, default: `false` | `int|bool` | Number of milliseconds after which to stop updating the data. If `false` is passed, updates will never stop. |
 | `storage` | No, default: `'localStorage'` | `string` | The name of storage object to use. |
-| `storageKey` | No, default: `'syncedStorage'` | `string` | String with which to associate the data in the storage. |
+| `storageKeyPrefix` | No, default: `'synced_storage_'` | `string` | String that is prepended to all storage keys that are used internally. |
 
 ## Example
 
@@ -44,7 +44,8 @@ syncedStorage({
 ## Changelog
 
 * v1.0.1
-  * Transparent fallback to regular, isolated requests if Web Storage is not available
+  * Transparent fallback to regular, isolated requests if Web Storage is not available.
+  * Fixed synchronization: `getData()` was triggered in all opened windows/tabs at the same time if run long enough.
 
 * v1.0.0
   * Initial release
