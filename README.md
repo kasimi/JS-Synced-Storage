@@ -5,6 +5,7 @@ Utility function for synchronizing data between browser windows/tabs using Web S
 ## What is this?
 
 Frequently checking for new data by sending requests to a server is a common thing to do. When multiple windows/tabs are open, requests are sent in an isolated way: window A just fetched and processed new data, window B is still waiting for its next update to be triggered. This presents us with two problems and opportunities for optimization:
+
 1. The server receives more requests from the client than necessary. There should be a way to limit the number of requests so that it is enforced that no more than one request is sent in a given `updateInterval`.
 2. When a window/tab receives new data, it should send that data to other windows/tabs in order for them to process it immediately and not having to wait for their update to be triggered.
 
@@ -47,4 +48,4 @@ syncedStorage({
 
 ## Copyright and license
 
-Copyright 2016 kasimi. Released under the [MIT license](https://github.com/kasimi/JS-Synced-Storage/blob/master/LICENSE).
+Copyright 2016 kasimi. Released under the MIT license.
