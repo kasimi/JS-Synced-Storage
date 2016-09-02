@@ -36,7 +36,7 @@ syncedStorage({
 	},
 	updateInterval: 10 * 1000, // Update every 10 seconds
 	sessionLength: 60 * 1000, // Stop updating after 1 minute
-	storageKey: 'syncedStorageExample'
+	storageKeyPrefix: 'syncedStorageExample'
 });
 
 ```
